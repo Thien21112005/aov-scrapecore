@@ -28,6 +28,7 @@ A high-performance scraping engine and asset downloader designed to extract comp
   - [1. Desktop Graphical Interface (GUI)](#1-desktop-graphical-interface-gui)
   - [2. Command-Line Interface (CLI)](#2-command-line-interface-cli)
   - [3. Python SDK / Programmatic Integration](#3-python-sdk--programmatic-integration)
+- [Data Refresh & Balance Updates Guide](#data-refresh--balance-updates-guide)
 - [Output Data Schema](#output-data-schema)
 - [License & Disclaimer](#license--disclaimer)
 
@@ -184,6 +185,46 @@ exporter.export_all_heroes_skills("data/all_heroes_skills.json", max_workers=10)
 
 ---
 
+### Data Refresh & Balance Updates Guide
+
+When champions receive balance changes (buffs, nerfs, reworks) or when new heroes are released, you can refresh or customize the data using four convenient workflows:
+
+#### Workflow 1: Fast Single-Hero Live Update (Recommended for Patches)
+To update skill descriptions, damage formulas, and cooldowns for a specific hero directly from Garena:
+```bash
+python cli.py --update-skills "Tamyn"
+# or
+python sync_metaforge.py --hero "Florentino"
+```
+*Effect: Automatically crawls the latest data from Garena, saves it to `data/all_heroes_skills.json`, and immediately synchronizes it into `aov-metaforge/js/core/data.js`.*
+
+#### Workflow 2: Full Season / Big Patch Refresh (All 129 Champions)
+When a new season starts or a massive balance patch drops:
+```bash
+python sync_metaforge.py --all
+```
+*Effect: Crawls all 129 champions from Garena in parallel and refreshes both local JSON and the companion web app.*
+
+#### Workflow 3: Manual Stats & Balance Tuning (Custom Numbers)
+If Garena hasn't updated their web portal yet or you wish to test custom damage numbers:
+1. Open `data/all_heroes_skills.json`.
+2. Locate the champion (e.g., search for `"Tamyn"`).
+3. Directly edit the damage values, scaling ratios, or skill mechanics in the `"description"` field.
+4. Push your manual edits into the web app with:
+```bash
+python cli.py --sync-metaforge
+```
+
+#### Workflow 4: Tactical Meta Stats Tuning (Tier, Mobility, CC Rating)
+Advanced tactical ratings for the web app are maintained in `aov-metaforge/js/core/data.js`:
+- `"tier"`: `"S+"`, `"S"`, `"A"`, `"B"`
+- `"mobility"`: Integer score (0 - 100)
+- `"cc_rating"`: Integer score (0 - 100)
+- `"countered_by"`, `"counters"`, `"synergies"`: Lists of champion IDs.
+Edit these fields directly in `data.js` to immediately update live tier lists, lane recommendations, and modal meters.
+
+---
+
 ### Output Data Schema
 
 Example `hero_info.json`:
@@ -235,6 +276,7 @@ Engine cào dữ liệu và tải xuống tài nguyên được thiết kế chu
   - [1. Chạy Giao Diện Đồ Họa Desktop (GUI)](#1-chạy-giao-diện-đồ-họa-desktop-gui)
   - [2. Chạy Giao Diện Dòng Lệnh (CLI)](#2-chạy-giao-diện-dòng-lệnh-cli)
   - [3. Tích Hợp Thư Viện Python (SDK API)](#3-tích-hợp-thư-viện-python-sdk-api)
+- [Hướng Dẫn Làm Mới & Cập Nhật Thông Số Tướng](#hướng-dẫn-làm-mới--cập-nhật-thông-số-tướng)
 - [Bản Quyền & Tuyên Bố Từ Chối Trách Nhiệm](#bản-quyền--tuyên-bố-từ-chối-trách-nhiệm)
 
 ---
@@ -387,6 +429,46 @@ for skill in detail["skills"]:
 # 3. Xuất cơ sở dữ liệu đồng loạt
 exporter.export_all_heroes_skills("data/all_heroes_skills.json", max_workers=10)
 ```
+
+---
+
+### Hướng Dẫn Làm Mới & Cập Nhật Thông Số Tướng
+
+Khi game có bản cập nhật chỉnh sửa sức mạnh (Buff/Nerf), làm lại chiêu thức (Rework) hoặc ra mắt tướng mới, bạn có thể cập nhật dữ liệu qua 4 cách linh hoạt:
+
+#### Cách 1: Cập nhật nhanh 1 tướng cụ thể từ Garena (Khuyên dùng khi có Patch nhỏ)
+Khi chỉ có vài tướng được chỉnh sửa (ví dụ: *Tamyn*, *Florentino*, *Valhein*):
+```bash
+python cli.py --update-skills "Tamyn"
+# hoặc
+python sync_metaforge.py --hero "Florentino"
+```
+*Tác dụng: Tự động bóc tách bài viết mới nhất từ Garena, ghi vào `data/all_heroes_skills.json` và tự động cập nhật thẳng vào file `aov-metaforge/js/core/data.js` của web.*
+
+#### Cách 2: Làm mới toàn bộ 129 tướng khi sang Mùa giải mới (Big Update)
+Khi bước sang mùa giải mới hoặc cập nhật toàn diện:
+```bash
+python sync_metaforge.py --all
+```
+*Tác dụng: Tải lại toàn bộ 129 tướng đa luồng từ Garena và đồng bộ tức thì sang Web.*
+
+#### Cách 3: Tự tay sửa thông số / Sát thương / Cơ chế theo ý muốn
+Nếu trang Garena chưa kịp cập nhật hoặc bạn muốn tùy biến thông số thử nghiệm:
+1. Mở file `data/all_heroes_skills.json`.
+2. Tìm tên vị tướng (nhấn `Ctrl + F` tìm `"Tamyn"`).
+3. Sửa trực tiếp chỉ số sát thương, hồi chiêu, mô tả trong trường `"description"`.
+4. Đẩy toàn bộ thay đổi vừa sửa vào web bằng lệnh:
+```bash
+python cli.py --sync-metaforge
+```
+
+#### Cách 4: Tự đổi các thông số Meta (Tier S+, Độ cơ động, Điểm khống chế, Kèo khắc chế)
+Các chỉ số chiến thuật phục vụ phân tích web nằm trong `aov-metaforge/js/core/data.js`:
+- `"tier"`: `"S+"`, `"S"`, `"A"`, `"B"` (Cấp bậc sức mạnh meta)
+- `"mobility"`: Điểm cơ động (1 - 100)
+- `"cc_rating"`: Điểm khống chế cứng (1 - 100)
+- `"countered_by"` / `"counters"`: Danh sách ID tướng khắc chế và bị khắc chế.
+Chỉ cần sửa giá trị trong `data.js` và lưu lại, trang web sẽ nhận thông số mới ngay lập tức.
 
 ---
 
