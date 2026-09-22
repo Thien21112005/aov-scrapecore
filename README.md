@@ -2,46 +2,65 @@
 
 > High-performance asset & metadata scraper for Arena of Valor (Liên Quân Mobile).
 
+[English](README.md) | [Tiếng Việt](README.vi.md)
+
 [![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Architecture: Layered](https://img.shields.io/badge/architecture-layered%20clean-emerald.svg)](https://en.wikipedia.org/wiki/Multitier_architecture)
 
 A high-performance scraping engine and downloader designed to extract comprehensive metadata, high-resolution splash art, avatars, skill sets, and balance descriptions for all champions in Arena of Valor (Liên Quân Mobile) directly from official Garena portals.
 
 ---
 
-## Features
+## Architectural Design
 
-- **Comprehensive Champion Coverage**: Automated indexing of all 129+ champions, including newly released heroes (Tamyn, Flowborn, Charlotte, etc.).
-- **Rich Skill Set & Description Mining**: Parses passive and active skills with full numerical formulas, cooldowns, and mechanics from detail articles.
-- **High-Resolution Asset Extraction**: Downloads uncompressed avatars, splash arts (1080p+), and skill icons directly from CDN endpoints.
-- **Dual Interface**:
-  - **Modern Desktop GUI**: CustomTkinter-based interface with search, role filters, real-time download logs, and progress indicators.
-  - **CLI & Automation API**: Argument-driven command-line utility with rich terminal formatting and batch scraping.
-- **Concurrent Engine**: Multi-threaded request pooling (`ThreadPoolExecutor`) with automatic retry logic, rate-limit throttling, and skip-if-cached verification.
-- **Structured Data Export**: Outputs normalized JSON schemas ready for downstream databases, simulators, and mobile/web applications.
-
----
-
-## Directory Structure
+`aov-scrapecore` is engineered following a modular, 3-tier layered architecture (Domain, Services, Utilities, and Presentation) ensuring separation of concerns, testability, and maintainability.
 
 ```text
 aov-scrapecore/
-├── cli.py                  # Command-line interface and interactive menu
-├── gui.py                  # CustomTkinter desktop graphical interface
-├── main.py                 # Application launcher
-├── scraper.py              # Core scraping engine and network clients
-├── requirements.txt        # Runtime dependencies
-├── run_cli.bat             # Windows CLI launcher script
-├── run_gui.bat             # Windows GUI launcher script
-├── data/                   # Seed and exported JSON datasets
-└── downloads/              # Downloaded champion assets (git-ignored)
-    └── <Champion_Name>/
-        ├── avatar.jpg
-        ├── hero_info.json  # Champion metadata and complete skill set
-        ├── skins/          # High-resolution splash arts
-        └── skills/         # Skill icons
+├── scrapecore/
+│   ├── core/                  # Domain Layer: Entities, data classes & global constants
+│   │   ├── constants.py       # Base URLs, headers, and role mappings
+│   │   └── models.py          # Champion, Skill, Skin, and DownloadResult dataclasses
+│   │
+│   ├── services/              # Application / Business Logic Layer
+│   │   ├── scraper_service.py # HTML fetching, DOM parsing, and skill extraction
+│   │   ├── download_service.py# Multi-threaded asset downloader & progress tracking
+│   │   └── export_service.py  # JSON normalization and dataset exporter
+│   │
+│   ├── utils/                 # Infrastructure / Utility Layer
+│   │   ├── file_utils.py      # Cross-platform path sanitization and atomic file I/O
+│   │   └── text_utils.py      # Unicode NFD normalization and accent stripping
+│   │
+│   └── ui/                    # Presentation / Interface Layer
+│       ├── cli/               # Command-line interface and interactive menu
+│       │   └── app.py
+│       └── gui/               # CustomTkinter dark-themed desktop application
+│           └── app.py
+│
+├── main.py                    # Application entrypoint (CLI or GUI router)
+├── cli.py                     # Backward-compatible CLI proxy
+├── gui.py                     # Backward-compatible GUI proxy
+├── scraper.py                 # Backward-compatible Scraper API proxy
+├── data/
+│   └── all_heroes_skills.json # Full dataset of all 129 champions and skills
+├── requirements.txt           # Production dependencies
+├── run_cli.bat                # Windows 1-click CLI launcher
+├── run_gui.bat                # Windows 1-click GUI launcher
+└── LICENSE                    # MIT License
 ```
+
+---
+
+## Key Capabilities
+
+- **Complete Champion Indexing**: Indexes all 129+ champions including newly added heroes (Tamyn, Charlotte, Flowborn, etc.).
+- **Skill Extraction with Deep Text Mining**: Parses passive and active skills, extracting numerical damage formulas, scaling rates, cooldowns, and mechanics from detail articles.
+- **Concurrent Asset Downloader**: Multi-threaded request pooling (`ThreadPoolExecutor`) with automatic retry logic, rate-limit throttling, and skip-if-cached verification.
+- **Dual User Interface**:
+  - **Desktop GUI**: Built with CustomTkinter featuring multi-select, role filtering, search, and real-time logs.
+  - **CLI & Automation**: Argument-driven command-line utility with rich terminal formatting and batch scraping.
+- **Structured JSON Exports**: Normalizes data ready for downstream databases, game simulators, or web frontends.
 
 ---
 
@@ -53,11 +72,10 @@ aov-scrapecore/
 
 ### Setup
 ```bash
-# Clone the repository
 git clone https://github.com/Thien21112005/aov-scrapecore.git
 cd aov-scrapecore
 
-# Create and activate virtual environment (optional but recommended)
+# Create virtual environment
 python -m venv venv
 # On Windows:
 venv\Scripts\activate
@@ -72,20 +90,18 @@ pip install -r requirements.txt
 
 ## Usage Guide
 
-### 1. Graphical User Interface (GUI)
-
-Launch the desktop interface:
+### 1. Desktop Graphical Interface (GUI)
 ```bash
 python main.py --gui
-# or double click run_gui.bat on Windows
+# or run_gui.bat on Windows
 ```
 
 ### 2. Command-Line Interface (CLI)
 
 #### Interactive Menu
 ```bash
-python cli.py
-# or double click run_cli.bat on Windows
+python main.py
+# or python cli.py
 ```
 
 #### Command Arguments
@@ -94,50 +110,49 @@ python cli.py
 python cli.py --hero "Florentino"
 python cli.py --hero "Tamyn"
 
-# Download champions filtered by role
+# Filter by role
 python cli.py --role "Xạ thủ"
 python cli.py --role "Đấu sĩ"
 
-# Download all champions (129+ heroes)
+# Download all champions
 python cli.py --all
 
 # Specify asset types: avatar, splash, skills, or all (default: avatar,splash)
 python cli.py --hero "Valhein" --type all
 
-# Export complete champion skills dataset to JSON
+# Export full 129 champions skills dataset to JSON
 python cli.py --export-skills data/all_heroes_skills.json
 
 # Adjust output path and concurrent thread workers
 python cli.py --all --output "D:/Assets/AOV" --threads 8
 
-# List all available champions
+# List all indexed champions
 python cli.py --list
 ```
 
-### 3. Python API Integration
+### 3. Python SDK / Programmatic Integration
 
 ```python
-from scraper import AOVScraper
+from scrapecore.services.scraper_service import ScraperService
+from scrapecore.services.download_service import DownloadService
+from scrapecore.services.export_service import ExportService
 
-scraper = AOVScraper(timeout=20, max_retries=3)
+scraper = ScraperService(timeout=20)
+downloader = DownloadService(scraper)
+exporter = ExportService(scraper)
 
 # 1. Fetch all champions list
 heroes = scraper.get_heroes()
-print(f"Total indexed champions: {len(heroes)}")
+print(f"Total champions: {len(heroes)}")
 
-# 2. Extract detail metadata and skills for a champion
+# 2. Extract detailed skills for a champion
 hero_url = "https://lienquan.garena.vn/hoc-vien/tuong-skin/d/tamyn/"
 detail = scraper.get_hero_detail(hero_url)
-
 for skill in detail["skills"]:
     print(f"[{skill['type']}] {skill['name']}: {skill['description'][:60]}...")
 
-# 3. Download assets for a hero
-results = scraper.download_hero(
-    hero=heroes[0],
-    output_dir="downloads",
-    image_types=["avatar", "splash", "skills"]
-)
+# 3. Batch export dataset
+exporter.export_all_heroes_skills("data/all_heroes_skills.json", max_workers=10)
 ```
 
 ---
@@ -158,14 +173,7 @@ Example `hero_info.json`:
       "type": "Nội tại",
       "name": "Thánh Thương Quang Minh",
       "icon_url": "https://lienquan.garena.vn/wp-content/uploads/...png",
-      "description": "Sau khi nhặt đoản thương, đòn đánh thường của Tamyn sẽ được cường hóa trong 4 giây..."
-    },
-    {
-      "id": "heroSkill-2",
-      "type": "Chiêu 1",
-      "name": "Thương Phá Tầng Không",
-      "icon_url": "https://lienquan.garena.vn/wp-content/uploads/...png",
-      "description": "Tamyn phóng đoản thương theo hướng chỉ định, gây sát thương vật lý..."
+      "description": "Sau khi nhặt đoản thương, đòn đánh thường của Tamyn sẽ được cường hóa..."
     }
   ]
 }
@@ -173,27 +181,7 @@ Example `hero_info.json`:
 
 ---
 
-## Configuration & Rate Limiting
-
-- Network requests run through a pooled `requests.Session` with custom User-Agent headers.
-- Automatic exponential backoff prevents IP rate-limiting from CDN edge servers.
-- Safe Windows path sanitization is applied to all filenames and directory paths.
-
----
-
-## Contributing
-
-Pull requests and issues are welcome. For major architectural changes, please open an issue first to discuss your proposal.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/new-capability`)
-3. Commit your changes (`git commit -m 'feat: add new capability'`)
-4. Push to the branch (`git push origin feature/new-capability`)
-5. Open a Pull Request
-
----
-
-## License
+## License & Disclaimer
 
 Distributed under the [MIT License](LICENSE).
 
