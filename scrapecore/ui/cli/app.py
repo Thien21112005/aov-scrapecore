@@ -267,6 +267,8 @@ def main():
     parser.add_argument("--threads", "-t", type=int, default=5, help="Số luồng tải đa luồng đồng thời (mặc định: 5)")
     parser.add_argument("--list", action="store_true", help="Hiển thị danh sách tất cả các tướng")
     parser.add_argument("--export-skills", type=str, nargs="?", const="data/all_heroes_skills.json", help="Cào và xuất toàn bộ kỹ năng & mô tả của 129 tướng ra file JSON")
+    parser.add_argument("--update-skills", type=str, help="Cập nhật nhanh chiêu thức của 1 tướng cụ thể từ Garena và đồng bộ sang data.js (VD: --update-skills Tamyn)")
+    parser.add_argument("--sync-metaforge", action="store_true", help="Đồng bộ file JSON kỹ năng sang web AOV MetaForge (js/core/data.js)")
     parser.add_argument("--gui", action="store_true", help="Khởi chạy giao diện đồ họa (GUI Desktop)")
 
     args = parser.parse_args()
@@ -278,6 +280,23 @@ def main():
     if args.gui:
         from ..gui.app import launch_gui
         launch_gui()
+        return
+
+    if args.update_skills:
+        print_banner()
+        import subprocess
+        sync_script = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "sync_metaforge.py")
+        if not os.path.exists(sync_script):
+            sync_script = "sync_metaforge.py"
+        os.system(f'python "{sync_script}" --hero "{args.update_skills}"')
+        return
+
+    if args.sync_metaforge:
+        print_banner()
+        sync_script = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "sync_metaforge.py")
+        if not os.path.exists(sync_script):
+            sync_script = "sync_metaforge.py"
+        os.system(f'python "{sync_script}" --local')
         return
 
     if args.export_skills:

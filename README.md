@@ -144,6 +144,12 @@ python cli.py --hero "Valhein" --type all
 # Export full 129 champions skills dataset to JSON
 python cli.py --export-skills data/all_heroes_skills.json
 
+# Update a single champion's skills live from Garena and sync to web
+python cli.py --update-skills "Tamyn"
+
+# Synchronize local skills JSON to AOV MetaForge web (data.js)
+python cli.py --sync-metaforge
+
 # Adjust output path and concurrent thread workers
 python cli.py --all --output "D:/Assets/AOV" --threads 8
 
@@ -343,6 +349,12 @@ python cli.py --hero "Valhein" --type all
 
 # Xuất dữ liệu toàn bộ kỹ năng 129 tướng ra file JSON
 python cli.py --export-skills data/all_heroes_skills.json
+
+# Cập nhật nhanh chiêu thức 1 tướng từ Garena và đồng bộ sang web
+python cli.py --update-skills "Tamyn"
+
+# Đồng bộ file JSON kỹ năng sang web AOV MetaForge (data.js)
+python cli.py --sync-metaforge
 
 # Tùy chỉnh thư mục lưu và số luồng tải
 python cli.py --all --output "D:/Assets/AOV" --threads 8

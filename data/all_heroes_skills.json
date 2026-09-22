@@ -3973,14 +3973,14 @@
         "type": "Nội tại",
         "name": "Thánh Thương Quang Minh",
         "icon_url": "https://lienquan.garena.vn/wp-content/uploads/2026/07/SeaTalk_IMG_20260706_163342-1.png",
-        "description": "Sau khi nhặt đoản thương, đòn đánh thường của Tamyn sẽ được cường hóa trong 4 giây, tối đa cộng dồn 2 lần, đồng thời tăng 20 – 40 tốc chạy trong 4 giây và đạt giá trị tối đa sau 2 giây.\n\r\nĐòn đánh thường cường hóa gây thêm 200 +14/cấp tướng +0.3 công vật lý cộng thêm sát thương vật lý, đồng thời giảm 1 giây hồi chiêu của tất cả kỹ năng.\n\n\r\nMỗi lần nhặt hoặc thu hồi đoản thương, Tamyn hồi 100 +7/cấp tướng +2% máu cộng thêm máu. Nếu đòn đánh thường cường hóa trúng mục tiêu, lượng hồi phục này sẽ được tăng gấp đôi.\n\n\r\nMỗi lần tung chiêu, Tamyn nhận 2% tốc chạy trong 5 giây, tối đa cộng dồn 3 lần.\n\n\r\nNgoài ra, toàn bộ tốc chạy cộng thêm sẽ được chuyển hóa tương ứng thành sát thương cho các kỹ năng và đòn đánh thường cường hóa.\n\n\r\nSau khi tồn tại 5 giây, đoản thương sẽ tự động quay về."
+        "description": "Sau khi nhặt đoản thương, đòn đánh thường của Tamyn sẽ được cường hóa trong 4 giây, tối đa cộng dồn 2 lần, đồng thời tăng 20 – 40 tốc chạy trong 4 giây và đạt giá trị tối đa sau 2 giây.\n\nĐòn đánh thường cường hóa gây thêm 200 +14/cấp tướng +0.3 công vật lý cộng thêm sát thương vật lý, đồng thời giảm 1 giây hồi chiêu của tất cả kỹ năng.\n\nMỗi lần nhặt hoặc thu hồi đoản thương, Tamyn hồi 100 +7/cấp tướng +2% máu cộng thêm máu. Nếu đòn đánh thường cường hóa trúng mục tiêu, lượng hồi phục này sẽ được tăng gấp đôi.\n\nMỗi lần tung chiêu, Tamyn nhận 2% tốc chạy trong 5 giây, tối đa cộng dồn 3 lần.\n\nNgoài ra, toàn bộ tốc chạy cộng thêm sẽ được chuyển hóa tương ứng thành sát thương cho các kỹ năng và đòn đánh thường cường hóa.\n\nSau khi tồn tại 5 giây, đoản thương sẽ tự động quay về."
       },
       {
         "id": "heroSkill-2",
         "type": "Chiêu 1",
         "name": "Thương Phá Tầng Không",
         "icon_url": "https://lienquan.garena.vn/wp-content/uploads/2026/07/SeaTalk_IMG_20260706_163351-1.png",
-        "description": "Tamyn phóng đoản thương theo hướng chỉ định, gây 350 +70/cấp chiêu +1.4 công vật lý cộng thêm sát thương vật lý. Đoản thương sẽ cắm xuống vị trí phía sau mục tiêu trong 10 giây.\n\n\r\nNếu hạ gục mục tiêu, đoản thương sẽ tiếp tục bay thêm một đoạn ngắn và gây thêm 50% sát thương lên các mục tiêu tiếp theo."
+        "description": "Tamyn phóng đoản thương theo hướng chỉ định, gây 350 +70/cấp chiêu +1.4 công vật lý cộng thêm sát thương vật lý. Đoản thương sẽ cắm xuống vị trí phía sau mục tiêu trong 10 giây.\n\nNếu hạ gục mục tiêu, đoản thương sẽ tiếp tục bay thêm một đoạn ngắn và gây thêm 50% sát thương lên các mục tiêu tiếp theo."
       },
       {
         "id": "heroSkill-3",
@@ -3994,7 +3994,7 @@
         "type": "Chiêu 3 (Chiêu cuối)",
         "name": "Thánh Thương Quy Tụ",
         "icon_url": "https://lienquan.garena.vn/wp-content/uploads/2026/07/SeaTalk_IMG_20260706_163347-1.png",
-        "description": "Tamyn triệu hồi một đoản thương bay về phía bản thân và gây 150 +150/cấp chiêu +0.85 công vật lý cộng thêm sát thương vật lý cho kẻ địch trên đường đi.\n\n\r\nTăng cấp chiêu cuối có thể tăng giới hạn sử dụng, tối đa 4 lần."
+        "description": "Tamyn triệu hồi một đoản thương bay về phía bản thân và gây 150 +150/cấp chiêu +0.85 công vật lý cộng thêm sát thương vật lý cho kẻ địch trên đường đi.\n\nTăng cấp chiêu cuối có thể tăng giới hạn sử dụng, tối đa 4 lần."
       }
     ],
     "skins_count": 1
