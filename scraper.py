@@ -230,7 +230,28 @@ class AOVScraper:
         skill_section = soup.find("section", class_="hero__skills")
         skills = []
         if skill_section:
-            for item in skill_section.select(".hero__skills--list li a"):
+            # Parse detail articles: map id (e.g. heroSkill-1) -> {name, description}
+            skill_details = {}
+            for detail_div in skill_section.select(".hero__skills--detail"):
+                s_id = detail_div.get("id", "").strip()
+                h3 = detail_div.find("h3")
+                skill_title = h3.get_text(strip=True) if h3 else ""
+                article = detail_div.find("article")
+                desc_text = ""
+                if article:
+                    for br in article.find_all("br"):
+                        br.replace_with("\n")
+                    desc_text = article.get_text().strip()
+                    desc_text = re.sub(r'\n{3,}', '\n\n', desc_text)
+                if s_id:
+                    skill_details[s_id] = {
+                        "name": skill_title,
+                        "description": desc_text
+                    }
+
+            type_labels = ["Nội tại", "Chiêu 1", "Chiêu 2", "Chiêu 3 (Chiêu cuối)", "Chiêu 4", "Chiêu 5"]
+            for idx, item in enumerate(skill_section.select(".hero__skills--list li a")):
+                s_id = item.get("href", "").replace("#", "").strip()
                 skill_name = item.get("title", "").strip()
                 img_tag = item.find("img")
                 if not skill_name and img_tag:
@@ -239,10 +260,18 @@ class AOVScraper:
                 if icon_url and not icon_url.startswith("http"):
                     icon_url = urljoin(hero_url, icon_url)
 
-                if icon_url:
+                detail_info = skill_details.get(s_id, {})
+                final_name = detail_info.get("name") or skill_name or f"Chiêu_{idx+1}"
+                final_desc = detail_info.get("description", "")
+                skill_type = type_labels[idx] if idx < len(type_labels) else f"Kỹ năng {idx+1}"
+
+                if icon_url or final_name:
                     skills.append({
-                        "name": skill_name or f"Chiêu_{len(skills)+1}",
-                        "icon_url": icon_url
+                        "id": s_id or f"skill_{idx+1}",
+                        "type": skill_type,
+                        "name": final_name,
+                        "icon_url": icon_url,
+                        "description": final_desc
                     })
 
         return {"skins": skins, "skills": skills}
@@ -381,6 +410,23 @@ class AOVScraper:
                             results["failed"] += 1
                         _safe_callback(callback, hero_name, f"Kỹ năng: {skill_name}", ok)
 
+                # Save complete hero metadata and skills to hero_info.json
+                meta_path = os.path.join(hero_folder, "hero_info.json")
+                hero_meta = {
+                    "id": hero.get("id"),
+                    "name": hero_name,
+                    "url": hero.get("url"),
+                    "avatar_url": hero.get("avatar_url"),
+                    "roles": hero.get("roles", []),
+                    "skins": detail.get("skins", []),
+                    "skills": detail.get("skills", [])
+                }
+                try:
+                    with open(meta_path, "w", encoding="utf-8") as f:
+                        json.dump(hero_meta, f, ensure_ascii=False, indent=2)
+                except Exception:
+                    pass
+
             except Exception as e:
                 results["error"] = str(e)
                 _safe_callback(callback, hero_name, f"Lỗi chi tiết: {e}", False)
@@ -423,4 +469,58 @@ class AOVScraper:
                     h = future_to_hero[future]
                     results.append({"hero": h.get("name"), "error": str(e)})
         return results
+
+    def export_all_heroes_skills(
+        self,
+        output_file: str = "data/all_heroes_skills.json",
+        max_workers: int = 10,
+        callback=None,
+    ) -> list[dict]:
+        """
+        Scrape complete skills and descriptions for all champions in parallel
+        and save to a normalized JSON file.
+        """
+        heroes = self.get_heroes()
+        all_data = []
+
+        def _fetch_one(hero):
+            try:
+                detail = self.get_hero_detail(hero["url"])
+                return {
+                    "id": hero.get("id"),
+                    "name": hero.get("name"),
+                    "url": hero.get("url"),
+                    "avatar_url": hero.get("avatar_url"),
+                    "roles": hero.get("roles", []),
+                    "skills": detail.get("skills", []),
+                    "skins_count": len(detail.get("skins", []))
+                }
+            except Exception as e:
+                return {
+                    "id": hero.get("id"),
+                    "name": hero.get("name"),
+                    "url": hero.get("url"),
+                    "avatar_url": hero.get("avatar_url"),
+                    "roles": hero.get("roles", []),
+                    "skills": [],
+                    "error": str(e)
+                }
+
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_to_hero = {executor.submit(_fetch_one, h): h for h in heroes}
+            for idx, future in enumerate(as_completed(future_to_hero), 1):
+                res = future.result()
+                all_data.append(res)
+                if callback:
+                    callback(res["name"], f"Đã cào {idx}/{len(heroes)}: {res['name']}", True)
+
+        # Sort by champion name for consistency
+        all_data.sort(key=lambda x: x.get("name", ""))
+
+        os.makedirs(os.path.dirname(os.path.abspath(output_file)), exist_ok=True)
+        with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(all_data, f, ensure_ascii=False, indent=2)
+
+        return all_data
+
 

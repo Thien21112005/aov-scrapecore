@@ -264,6 +264,7 @@ def main():
     parser.add_argument("--output", "-o", type=str, default="downloads", help="Thư mục lưu ảnh (mặc định: downloads)")
     parser.add_argument("--threads", "-t", type=int, default=5, help="Số luồng tải đa luồng đồng thời (mặc định: 5)")
     parser.add_argument("--list", action="store_true", help="Hiển thị danh sách tất cả các tướng")
+    parser.add_argument("--export-skills", type=str, nargs="?", const="data/all_heroes_skills.json", help="Cào và xuất toàn bộ kỹ năng & mô tả của 129 tướng ra file JSON")
     parser.add_argument("--gui", action="store_true", help="Khởi chạy giao diện đồ họa (GUI Desktop)")
 
     args = parser.parse_args()
@@ -274,6 +275,20 @@ def main():
     if args.gui:
         from gui import launch_gui
         launch_gui()
+        return
+
+    # Export skills if requested
+    if args.export_skills:
+        print_banner()
+        output_file = args.export_skills
+        print(f"[*] Đang cào dữ liệu toàn bộ kỹ năng & mô tả của 129 tướng...")
+        print(f"[*] File đích: {output_file}")
+        
+        def _cb(hero_name, msg, ok):
+            print(f"  -> {msg}")
+            
+        data = scraper.export_all_heroes_skills(output_file, max_workers=args.threads, callback=_cb)
+        print(f"\n[✓] Thành công! Đã cào và lưu thông tin kỹ năng của {len(data)} tướng vào: {output_file}")
         return
 
     # If any specific non-interactive command is given
